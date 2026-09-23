@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# User supplied data, checkpoints, caches, predictions, and logs.
+data/
+artifacts/
+outputs/
+logs/
+wandb/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+*.ply
+*.npz
+*.npy
+*.pkl
+*.jsonl
+
+# Local generated dataset metadata can be large and is reproducible.
+spatiallm-dataset-link/

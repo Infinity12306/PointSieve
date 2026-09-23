@@ -1,0 +1,21 @@
+# Install PyTorch separately for the CUDA version on the target machine.
+transformers>=4.41.2,<=4.46.1
+safetensors>=0.4.5
+accelerate<=1.7.0
+datasets<=3.6.0
+omegaconf
+wandb
+numpy>=1.26
+scipy>=1.15
+pandas>=2.2
+scikit-learn>=1.6
+PyYAML
+einops>=0.8
+open3d>=0.18
+Pillow
+bbox>=0.9.4
+shapely>=2.0
+terminaltables>=3.1
+tqdm
+packaging
+typing_extensions

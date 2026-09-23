@@ -1,0 +1,10 @@
+PointSieve includes a small runtime subset derived from ManyCore Research's
+SpatialLM repository (https://github.com/manycore-research/SpatialLM),
+LlamaFactory, Pointcept/Sonata, and other upstream projects. Their original
+copyright and license notices are retained in the copied source files.
+
+The SpatialLM model code and weights are based on Llama 3.2. Llama 3.2 is
+licensed under the Llama 3.2 Community License, Copyright © Meta Platforms,
+Inc. All Rights Reserved. The complete license is in LICENSE-LLAMA.txt.
+Users must obtain and accept the applicable model license before downloading
+or using the SpatialLM checkpoint.

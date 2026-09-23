@@ -1,0 +1,39 @@
+dataset_root: data/spatiallm
+stage2_model: artifacts/stage2_bboxmask/checkpoint-14392
+cache_root: artifacts/scorer_cache
+message_cache_root: artifacts/message_cache
+filtered_cache_root: artifacts/filtered_cache
+scorer_output: artifacts/scorer
+scorer_checkpoint: artifacts/scorer/checkpoint-29488
+
+num_bins: 1280
+world_size: 16.0
+bbox_expand_ratio: 0.1
+seed: 0
+train_epochs: 4
+cache_shard_size: 1250
+scorer_batch_size: 32
+filter_batch_size: 8
+threshold: 0.5
+min_keep: 1
+max_keep: 4096
+storage_dtype: bfloat16
+projector_dtype: bfloat16
+
+scorer:
+  per_device_train_batch_size: 32
+  per_device_eval_batch_size: 32
+  gradient_accumulation_steps: 1
+  learning_rate: 1.0e-4
+  weight_decay: 0.01
+  hidden_dim: 512
+  num_layers: 4
+  num_heads: 8
+  ffn_dim: 2048
+  dropout: 0.1
+  num_workers: 8
+  eval_steps: 500
+  save_steps: 1000
+  logging_steps: 20
+  save_total_limit: 5
+  dataloader_persistent_workers: false

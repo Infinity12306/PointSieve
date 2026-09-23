@@ -1,0 +1,75 @@
+experiment:
+  name: pointsieve_spatiallm_test
+  date_prefix: "0923"
+  aggregate_date_prefix: "0923"
+  data_json: data/spatiallm/spatiallm_stage1_region_test.json
+  dataset_root: data/spatiallm
+  expected_scene_count: 500
+  output_root: outputs/formal_test
+  log_root: logs/formal_test
+
+stage1:
+  checkpoint: artifacts/stage1/checkpoint-5000
+  seeds: [42, 43, 44]
+  num_bins: 1280
+  world_size: 32.0
+
+generation:
+  inference_dtype: bfloat16
+  greedy: false
+  deterministic: true
+  top_k: 10
+  top_p: 0.95
+  temperature: 0.6
+  num_beams: 1
+  max_new_tokens: 4096
+  min_region_points: 1
+  no_cleanup: false
+
+postprocess:
+  nms_iou: 0.1
+  nms_minimum_scale: 1.0e-6
+
+one_stage_baselines:
+  spatiallm_one_stage:
+    date_prefix: "0923"
+    source_model: ysmao/SpatialLM1.1-Qwen-0.5B-ScanNet-SFT
+    checkpoint: artifacts/base
+    code_template: code_template.txt
+    expected_num_bins: 1280
+    expected_world_size: 32.0
+    scene_token_bin_reference_method: hier_res16_max4096_14392
+
+methods:
+  hier_res16_max4096_14392:
+    type: plain
+    output_branch: llm
+    checkpoint: artifacts/stage2_plain/checkpoint-14392
+    expected_world_size: 16.0
+    expected_max_point_tokens: 4096
+
+  scorer_filtered_fullcache_7000:
+    type: all_region_scorer
+    output_branch: llm
+    checkpoint: artifacts/stage2_scorer_filtered/checkpoint-7000
+    expected_world_size: 16.0
+    scorer_path: artifacts/scorer/checkpoint-29488
+    scorer_raw_token_threshold_exclusive: 0
+    scorer_threshold: 0.5
+    scorer_max_keep: 4096
+    scorer_min_keep: 1
+    scorer_disable_mha_fastpath: true
+
+evaluation:
+  gt_dir: data/spatiallm/layout
+  gt_region_dir: data/spatiallm/region_test/expanded
+  label_mapping: benchmark_categories.tsv
+  label_from: spatiallm59
+  label_to: spatiallm20
+  minimum_scale: 0.1
+  missing_pred: error
+  region_k: 3
+  region_expand_fraction: 0.25
+  region_iou_thresholds: [0.25, 0.50, 0.75]
+  region_token_boundaries: [1024, 1536, 2048]
+  std_ddof: 0
