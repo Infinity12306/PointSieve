@@ -21,7 +21,7 @@ from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 
 from utils.build_region_dataset import STAGE1_PROMPT, STAGE2_PROMPT
-from utils.inference_base import preprocess_point_cloud
+from inference.inference_base import preprocess_point_cloud
 from utils.render_topdown import save_points_and_colors
 from spatiallm import Layout
 from spatiallm.layout.entity import Bbox, Region

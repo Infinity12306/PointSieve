@@ -13,9 +13,9 @@ from typing import Any
 
 import numpy as np
 
-from utils import eval_base as base_eval
-from utils import eval_hierarchical as hierarchical_eval
-from utils.apply_bbox_nms import apply_class_aliases, classwise_nms, parse_class_aliases
+from eval import eval_base as base_eval
+from eval import eval_hierarchical as hierarchical_eval
+from eval.apply_bbox_nms import apply_class_aliases, classwise_nms, parse_class_aliases
 from spatiallm import Layout
 from spatiallm.layout.entity import Region
 

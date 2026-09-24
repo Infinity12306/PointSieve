@@ -15,8 +15,8 @@ import torch
 from tqdm import tqdm
 from transformers import set_seed
 
-from utils.inference_base import DETECT_TYPE_PROMPT
-from utils.inference_hierarchical import (
+from inference.inference_base import DETECT_TYPE_PROMPT
+from inference.inference_hierarchical import (
     POINT_PROMPT,
     apply_subset_args,
     decode_generated_layout,

@@ -9,4 +9,4 @@ description = "Minimal reproduction code for PointSieve 3D object detection"
 requires-python = ">=3.10,<3.13"
 
 [tool.setuptools.packages.find]
-include = ["spatiallm*", "utils*"]
+include = ["spatiallm*", "train*", "inference*", "eval*", "utils*"]

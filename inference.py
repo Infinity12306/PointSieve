@@ -8,12 +8,12 @@ import sys
 
 
 MODES = {
-    "base": "utils.inference_base",
-    "hierarchical": "utils.inference_hierarchical",
-    "stage1": "utils.inference_stage1",
-    "stage2": "utils.inference_stage2",
-    "scorer": "utils.inference_scorer",
-    "one_stage": "utils.inference_one_stage_repeated",
+    "base": "inference.inference_base",
+    "hierarchical": "inference.inference_hierarchical",
+    "stage1": "inference.inference_stage1",
+    "stage2": "inference.inference_stage2",
+    "scorer": "inference.inference_scorer",
+    "one_stage": "inference.inference_one_stage_repeated",
 }
 
 

@@ -16,7 +16,7 @@ from tqdm import tqdm
 from transformers import set_seed
 
 from utils.build_region_dataset import STAGE1_PROMPT
-from utils.inference_hierarchical import (
+from inference.inference_hierarchical import (
     DEFAULT_DATASET_ROOT,
     decode_generated_layout,
     generate_layout_text,

@@ -25,7 +25,7 @@ from bbox.metrics import iou_3d
 from scipy.optimize import linear_sum_assignment
 from terminaltables import AsciiTable
 
-from utils import eval_base as base_eval
+from eval import eval_base as base_eval
 from utils.generate_region_bboxes import (
     expand_region,
     make_regions,

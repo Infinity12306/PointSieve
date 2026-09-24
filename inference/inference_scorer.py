@@ -18,7 +18,7 @@ from types import MethodType
 import torch
 from tqdm import tqdm
 
-from utils.inference_hierarchical import (
+from inference.inference_hierarchical import (
     DEFAULT_DATASET_ROOT,
     load_model_and_tokenizer,
     load_scenes,

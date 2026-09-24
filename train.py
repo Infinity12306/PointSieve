@@ -18,10 +18,10 @@ import sys
 
 
 MODES = {
-    "sft": "utils.sft_train",
-    "hierarchical": "utils.train_hierarchical",
-    "scorer": "utils.train_scorer",
-    "filtered": "utils.train_filtered_stage2",
+    "sft": "train.sft_train",
+    "hierarchical": "train.train_hierarchical",
+    "scorer": "train.train_scorer",
+    "filtered": "train.train_filtered_stage2",
 }
 
 

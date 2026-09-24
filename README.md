@@ -154,7 +154,10 @@ The runner reuses the saved Stage 1 predictions for every Stage 2 method, assign
 ```text
 configs/       paper training and evaluation YAML files
 scripts/       small cache and scorer wrappers
-utils/         data preparation and implementation modules
+train/         training implementations behind `train.py`
+inference/     inference implementations behind `inference.py`
+eval/          evaluation implementations behind `eval.py`
+utils/         data preparation, cache, geometry, and rendering helpers
 spatiallm/     required SpatialLM model, data, and trainer subset
 train.py       unified training entry point
 inference.py   unified inference entry point

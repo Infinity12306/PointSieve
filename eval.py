@@ -8,12 +8,12 @@ import sys
 
 
 MODES = {
-    "base": "utils.eval_base",
-    "hierarchical": "utils.eval_hierarchical",
-    "token_bins": "utils.eval_token_bins",
-    "nms": "utils.apply_bbox_nms",
-    "aggregate": "utils.aggregate_metrics",
-    "formal": "utils.formal_eval",
+    "base": "eval.eval_base",
+    "hierarchical": "eval.eval_hierarchical",
+    "token_bins": "eval.eval_token_bins",
+    "nms": "eval.apply_bbox_nms",
+    "aggregate": "eval.aggregate_metrics",
+    "formal": "eval.formal_eval",
 }
 
 

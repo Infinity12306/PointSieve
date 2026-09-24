@@ -13,7 +13,7 @@ from typing import Any
 
 import yaml
 
-from utils.formal_eval_checkpoint import resolve_method_checkpoints
+from eval.formal_eval_checkpoint import resolve_method_checkpoints
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]

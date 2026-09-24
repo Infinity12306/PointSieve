@@ -19,9 +19,9 @@ import torch
 from tqdm import tqdm
 from transformers import set_seed
 
-from utils.apply_bbox_nms import classwise_nms as postprocess_classwise_nms
+from eval.apply_bbox_nms import classwise_nms as postprocess_classwise_nms
 from utils.build_region_dataset import STAGE2_PROMPT
-from utils.inference_hierarchical import (
+from inference.inference_hierarchical import (
     DEFAULT_DATASET_ROOT,
     center_crop_point_arrays,
     decode_bbox_regression_layout,
@@ -37,7 +37,7 @@ from utils.inference_hierarchical import (
     prepare_scene_point_cloud,
     prompt_with_point_token,
 )
-from utils.inference_scorer import (
+from inference.inference_scorer import (
     install_conditional_scorer_point_filter,
     load_point_token_scorer,
     print_conditional_summary,
