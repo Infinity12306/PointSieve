@@ -11,7 +11,7 @@ from typing import Any
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Merge index_shard_*.json files produced by filter_point_tokens_with_scorer.py."
+        description="Merge index_shard_*.json files produced by the scorer cache filter."
     )
     parser.add_argument("--cache_dir", type=Path, required=True)
     parser.add_argument("--pattern", default="index_shard_*.json")

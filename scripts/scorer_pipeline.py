@@ -43,7 +43,8 @@ def precompute(config: dict) -> None:
         run(
             [
                 sys.executable,
-                "precompute_point_token_scorer_data.py",
+                "-m",
+                "utils.precompute_scorer_data",
                 "--dataset_json",
                 str(dataset_json),
                 "--dataset_root",
@@ -80,7 +81,8 @@ def train(config: dict) -> None:
     scorer = config["scorer"]
     command = [
         sys.executable,
-        "train_point_token_scorer.py",
+        "train.py",
+        "scorer",
         "--train_cache_dir",
         str(path(config["cache_root"]) / "train"),
         "--eval_cache_dir",
@@ -133,7 +135,8 @@ def filter_tokens(config: dict) -> None:
     run(
         [
             sys.executable,
-            "filter_point_tokens_with_scorer.py",
+            "-m",
+            "utils.filter_scorer_tokens",
             "--input_cache_root",
             str(path(config["cache_root"])),
             "--output_root",
@@ -180,7 +183,8 @@ def filter_tokens(config: dict) -> None:
         run(
             [
                 sys.executable,
-                "merge_filtered_point_token_cache_indices.py",
+                "-m",
+                "utils.merge_filtered_cache",
                 "--cache_dir",
                 str(path(config["filtered_cache_root"]) / split),
                 "--overwrite",

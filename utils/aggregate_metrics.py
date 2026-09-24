@@ -13,10 +13,10 @@ from typing import Any
 
 import yaml
 
-from formal_eval_checkpoint import resolve_method_checkpoints
+from utils.formal_eval_checkpoint import resolve_method_checkpoints
 
 
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def parse_args() -> argparse.Namespace:

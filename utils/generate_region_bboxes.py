@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 
-from render_topdown_arkitscenes import load_points_and_colors
+from utils.render_topdown import load_points_and_colors
 
 
 @dataclass(frozen=True)
@@ -427,13 +427,13 @@ def parse_args() -> argparse.Namespace:
         "--test_json",
         "--test-json",
         type=Path,
-        default=Path(__file__).resolve().parent / "data" / "spatiallm" / "spatiallm_test.json",
+        default=Path(__file__).resolve().parents[1] / "data" / "spatiallm" / "spatiallm_test.json",
     )
     parser.add_argument(
         "--output_root",
         "--output-root",
         type=Path,
-        default=Path(__file__).resolve().parent / "outputs" / "region_bbox",
+        default=Path(__file__).resolve().parents[1] / "outputs" / "region_bbox",
     )
     parser.add_argument("--k", type=int, default=3)
     parser.add_argument(

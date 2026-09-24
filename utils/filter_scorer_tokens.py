@@ -15,7 +15,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from precompute_point_token_scorer_data import (
+from utils.precompute_scorer_data import (
     load_samples,
     messages_from_sharegpt,
     resolve_path,
@@ -30,7 +30,7 @@ from spatiallm.model.point_token_scorer import (
 )
 
 
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT_CACHE_ROOT = REPO_ROOT / "artifacts" / "scorer_cache"
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "artifacts" / "filtered_cache"
 DEFAULT_SCORER_PATH = REPO_ROOT / "artifacts" / "scorer" / "checkpoint-29488"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run only hierarchical Stage 1 and persist reusable region predictions."""
+"""Run reproducible one-stage SpatialLM inference for a fixed test split."""
 
 from __future__ import annotations
 
@@ -15,16 +15,16 @@ import torch
 from tqdm import tqdm
 from transformers import set_seed
 
-from build_hierarchical_region_dataset import STAGE1_PROMPT
-from inference_hierarchical import (
-    DEFAULT_DATASET_ROOT,
+from utils.inference_base import DETECT_TYPE_PROMPT
+from utils.inference_hierarchical import (
+    POINT_PROMPT,
+    apply_subset_args,
     decode_generated_layout,
     generate_layout_text,
     load_model_and_tokenizer,
-    load_scenes,
     model_world_size,
     prepare_scene_point_cloud,
-    prompt_with_point_token,
+    scenes_from_json,
 )
 
 
@@ -42,6 +42,15 @@ def configure_reproducibility(seed: int, deterministic: bool) -> None:
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
     torch.use_deterministic_algorithms(True, warn_only=True)
+
+
+def resolve_code_template(path: Path) -> Path:
+    if path.is_file():
+        return path
+    candidate = Path(__file__).resolve().parents[1] / path
+    if candidate.is_file():
+        return candidate
+    raise FileNotFoundError(path)
 
 
 def prompt_from_data_json(path: Path) -> str:
@@ -65,11 +74,11 @@ def prompt_from_data_json(path: Path) -> str:
                 continue
             content = message.get("value") or message.get("content")
             if content:
-                prompts.add(prompt_with_point_token(str(content)))
+                prompts.add(str(content).replace("<point_cloud>", POINT_PROMPT))
             break
     if len(prompts) != 1:
         raise ValueError(
-            f"Expected one shared Stage-1 prompt in {path}, found {len(prompts)}."
+            f"Expected one shared one-stage prompt in {path}, found {len(prompts)}."
         )
     return next(iter(prompts))
 
@@ -77,22 +86,25 @@ def prompt_from_data_json(path: Path) -> str:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Run the hierarchical region/layout model without loading Stage 2. "
-            "The flat output directory can be reused by any later Stage-2 method."
+            "Run the original one-stage SpatialLM on a JSON test split with "
+            "the same fixed seeds used by the hierarchical comparison."
         )
     )
-    input_group = parser.add_mutually_exclusive_group(required=True)
-    input_group.add_argument("--data_json", type=Path)
-    input_group.add_argument("--point_cloud", type=Path)
-    parser.add_argument("--dataset_root", type=Path, default=DEFAULT_DATASET_ROOT)
+    parser.add_argument("--data_json", type=Path, required=True)
+    parser.add_argument("--dataset_root", type=Path, required=True)
     parser.add_argument("--output_dir", type=Path, required=True)
-    parser.add_argument("--stage1_model_path", required=True)
+    parser.add_argument("--model_path", required=True)
+    parser.add_argument(
+        "--code_template",
+        type=Path,
+        default=Path("code_template.txt"),
+    )
     parser.add_argument(
         "--prompt_from_data_json",
         action="store_true",
         help=(
-            "Use the shared user prompt stored in --data_json instead of the "
-            "default SpatialLM20 walls/doors/windows/regions prompt."
+            "Use the shared user prompt stored in --data_json. This is required "
+            "for fine-tuned datasets whose task prompt differs from the default."
         ),
     )
     parser.add_argument("--inference_dtype", default="bfloat16")
@@ -125,8 +137,8 @@ def parse_args() -> argparse.Namespace:
         parser.error("--num_shards must be positive.")
     if not 0 <= args.shard_index < args.num_shards:
         parser.error("--shard_index must satisfy 0 <= index < num_shards.")
-    if args.prompt_from_data_json and args.data_json is None:
-        parser.error("--prompt_from_data_json requires --data_json.")
+    if args.num_beams < 1:
+        parser.error("--num_beams must be positive.")
     return args
 
 
@@ -135,27 +147,39 @@ def main() -> int:
     configure_reproducibility(args.seed, args.deterministic)
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
-    scenes = load_scenes(args)
+    scenes = apply_subset_args(
+        scenes_from_json(args.data_json, args.dataset_root),
+        args.start_index,
+        args.end_index,
+        args.limit,
+        args.num_shards,
+        args.shard_index,
+    )
     if not scenes:
-        raise ValueError("No scenes selected for Stage-1 inference.")
+        raise ValueError("No scenes selected for one-stage inference.")
 
     model, tokenizer = load_model_and_tokenizer(
-        args.stage1_model_path,
+        args.model_path,
         args.inference_dtype,
         args.device,
     )
     num_bins = int(model.config.point_config["num_bins"])
     world_size = model_world_size(model)
-    prompt = (
-        prompt_from_data_json(args.data_json)
-        if args.prompt_from_data_json
-        else prompt_with_point_token(STAGE1_PROMPT)
-    )
+    if args.prompt_from_data_json:
+        prompt = prompt_from_data_json(args.data_json)
+    else:
+        code_template = resolve_code_template(args.code_template).read_text(
+            encoding="utf-8"
+        )
+        prompt = (
+            f"{POINT_PROMPT}{DETECT_TYPE_PROMPT['all']} "
+            f"The reference code is as followed: {code_template}"
+        )
 
     failures: list[tuple[str, str]] = []
-    for scene in tqdm(scenes, desc="Reusable Stage-1 inference"):
+    for scene in tqdm(scenes, desc="One-stage SpatialLM inference"):
         output_path = args.output_dir / f"{scene.scene_id}.txt"
-        if args.skip_existing and output_path.exists():
+        if args.skip_existing and output_path.is_file():
             continue
         try:
             scene_pcd = prepare_scene_point_cloud(
@@ -197,7 +221,7 @@ def main() -> int:
         return 1
 
     print(
-        "Wrote reusable Stage-1 predictions: "
+        "Wrote one-stage SpatialLM predictions: "
         f"output_dir={args.output_dir}, seed={args.seed}"
     )
     return 0

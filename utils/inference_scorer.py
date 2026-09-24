@@ -18,7 +18,7 @@ from types import MethodType
 import torch
 from tqdm import tqdm
 
-from inference_hierarchical import (
+from utils.inference_hierarchical import (
     DEFAULT_DATASET_ROOT,
     load_model_and_tokenizer,
     load_scenes,
@@ -32,7 +32,7 @@ from spatiallm.model.point_token_scorer import PointTokenScorer, ScorerConfig
 
 DEFAULT_RAW_TOKEN_THRESHOLD_EXCLUSIVE = 1024
 DEFAULT_SCORER_PATH = (
-    Path(__file__).resolve().parent / "artifacts" / "scorer"
+    Path(__file__).resolve().parents[1] / "artifacts" / "scorer"
 )
 
 

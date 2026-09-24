@@ -13,7 +13,7 @@ from pathlib import Path
 
 import numpy as np
 
-from generate_region_bboxes import (
+from utils.generate_region_bboxes import (
     ObjectBbox,
     Region,
     expand_region,
@@ -22,10 +22,10 @@ from generate_region_bboxes import (
     parse_bboxes,
     write_regions,
 )
-from render_topdown_arkitscenes import save_points_and_colors
+from utils.render_topdown import save_points_and_colors
 
 
-DEFAULT_DATASET_ROOT = Path(__file__).resolve().parent / "data" / "spatiallm"
+DEFAULT_DATASET_ROOT = Path(__file__).resolve().parents[1] / "data" / "spatiallm"
 
 STAGE1_PROMPT = (
     "<point_cloud>Detect walls, doors, windows, regions. The reference code is as followed: "

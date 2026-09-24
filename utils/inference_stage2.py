@@ -19,9 +19,9 @@ import torch
 from tqdm import tqdm
 from transformers import set_seed
 
-from apply_bbox_nms import classwise_nms as postprocess_classwise_nms
-from build_hierarchical_region_dataset import STAGE2_PROMPT
-from inference_hierarchical import (
+from utils.apply_bbox_nms import classwise_nms as postprocess_classwise_nms
+from utils.build_region_dataset import STAGE2_PROMPT
+from utils.inference_hierarchical import (
     DEFAULT_DATASET_ROOT,
     center_crop_point_arrays,
     decode_bbox_regression_layout,
@@ -37,17 +37,22 @@ from inference_hierarchical import (
     prepare_scene_point_cloud,
     prompt_with_point_token,
 )
-from inference_hierarchical_scorer_rawgt1024_conditional import (
+from utils.inference_scorer import (
     install_conditional_scorer_point_filter,
     load_point_token_scorer,
     print_conditional_summary,
 )
-from inference_hierarchical_attention_scorer import (
-    install_attention_scorer_bias,
-    install_attention_scorer_topk,
-    load_attention_scorer,
-    validate_checkpoint_args,
-)
+def _attention_scorer_unavailable(*_args, **_kwargs):
+    raise RuntimeError(
+        "attention_scorer is not included in the compact release; "
+        "use plain or scorer-filtered Stage 2 inference."
+    )
+
+
+install_attention_scorer_bias = _attention_scorer_unavailable
+install_attention_scorer_topk = _attention_scorer_unavailable
+load_attention_scorer = _attention_scorer_unavailable
+validate_checkpoint_args = _attention_scorer_unavailable
 from spatiallm import Layout
 from spatiallm.layout.entity import Bbox
 

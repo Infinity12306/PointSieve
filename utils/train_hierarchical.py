@@ -225,7 +225,7 @@ def parse_args() -> argparse.Namespace:
         "--train_script",
         "--train-script",
         type=Path,
-        default=Path(__file__).resolve().with_name("train.py"),
+        default=Path(__file__).resolve().parents[1] / "train.py",
     )
     parser.add_argument(
         "--skip_stage1",

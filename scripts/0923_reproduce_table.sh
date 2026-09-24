@@ -8,16 +8,16 @@ if [[ -z "${GPUS}" ]]; then
   exit 2
 fi
 
-python run_hierarchical_repeated_comparison.py \
+python eval.py formal \
   --config configs/0923_eval_spatiallm_test.yaml \
   --phase stage1 stage1_eval \
   --gpus "${GPUS}"
-python run_hierarchical_repeated_comparison.py \
+python eval.py formal \
   --config configs/0923_eval_spatiallm_test.yaml \
   --phase stage2 stage2_eval \
   --methods hier_res16_max4096_14392 scorer_filtered_fullcache_7000 \
   --gpus "${GPUS}"
-python run_hierarchical_repeated_comparison.py \
+python eval.py formal \
   --config configs/0923_eval_spatiallm_test.yaml \
   --phase aggregate \
   --gpus "${GPUS}"

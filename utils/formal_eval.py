@@ -19,10 +19,10 @@ from typing import Any
 import torch
 import yaml
 
-from formal_eval_checkpoint import resolve_method_checkpoints
+from utils.formal_eval_checkpoint import resolve_method_checkpoints
 
 
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(__file__).resolve().parents[1]
 PHASE_ORDER = (
     "stage1",
     "stage1_eval",
@@ -1192,7 +1192,8 @@ def stage1_phase(
         for shard_index in range(len(gpus)):
             command = [
                 sys.executable,
-                str(REPO_ROOT / "inference_hierarchical_stage1_only.py"),
+                str(REPO_ROOT / "inference.py"),
+                "stage1",
                 "--data_json",
                 str(absolute_path(experiment["data_json"])),
                 "--dataset_root",
@@ -1249,7 +1250,8 @@ def stage1_eval_phase(
         )
         command = [
             sys.executable,
-            str(REPO_ROOT / "eval_hierarchical.py"),
+            str(REPO_ROOT / "eval.py"),
+            "hierarchical",
             *common_eval_args(config),
             "--layout_pred_dir",
             str(prediction_dir),
@@ -1335,10 +1337,8 @@ def baseline_phase(
             for shard_index in range(len(gpus)):
                 command = [
                     sys.executable,
-                    str(
-                        REPO_ROOT
-                        / "inference_spatiallm_one_stage_repeated.py"
-                    ),
+                    str(REPO_ROOT / "inference.py"),
+                    "one_stage",
                     "--data_json",
                     str(baseline_data_json),
                     "--dataset_root",
@@ -1423,7 +1423,8 @@ def baseline_eval_phase(
             nms_dir = raw_dir.parent / f"NMS_{nms_iou}"
             nms_command = [
                 sys.executable,
-                str(REPO_ROOT / "apply_bbox_nms.py"),
+                str(REPO_ROOT / "eval.py"),
+                "nms",
                 "--input_dir",
                 str(raw_dir),
                 "--output_dir",
@@ -1462,7 +1463,8 @@ def baseline_eval_phase(
             )
             eval_command = [
                 sys.executable,
-                str(REPO_ROOT / "eval_hierarchical.py"),
+                str(REPO_ROOT / "eval.py"),
+                "hierarchical",
                 *common_eval_args(config),
                 "--layout_pred_dir",
                 str(nms_dir),
@@ -1521,10 +1523,8 @@ def baseline_eval_phase(
             )
             token_bin_command = [
                 sys.executable,
-                str(
-                    REPO_ROOT
-                    / "eval_hierarchical_stage2_token_bins.py"
-                ),
+                str(REPO_ROOT / "eval.py"),
+                "token_bins",
                 "--raw_prediction_dir",
                 str(token_reference_raw_dir),
                 "--scene_prediction_dir",
@@ -1800,8 +1800,9 @@ def stage2_phase(
                         sys.executable,
                         str(
                             REPO_ROOT
-                            / "inference_hierarchical_gt_region_scorer.py"
+                            / "inference.py"
                         ),
+                        "stage2",
                         "--data_json",
                         str(absolute_path(method["gt_region_data_json"])),
                         "--scene_data_json",
@@ -1832,10 +1833,8 @@ def stage2_phase(
                 else:
                     command = [
                         sys.executable,
-                        str(
-                            REPO_ROOT
-                            / "inference_hierarchical_stage2_from_stage1.py"
-                        ),
+                        str(REPO_ROOT / "inference.py"),
+                        "stage2",
                         "--data_json",
                         str(absolute_path(experiment["data_json"])),
                         "--dataset_root",
@@ -2015,7 +2014,8 @@ def stage2_eval_phase(
             nms_dir = raw_dir.parent / f"NMS_{nms_iou}"
             nms_command = [
                 sys.executable,
-                str(REPO_ROOT / "apply_bbox_nms.py"),
+                str(REPO_ROOT / "eval.py"),
+                "nms",
                 "--input_dir",
                 str(raw_dir),
                 "--output_dir",
@@ -2052,7 +2052,8 @@ def stage2_eval_phase(
             )
             eval_command = [
                 sys.executable,
-                str(REPO_ROOT / "eval_hierarchical.py"),
+                str(REPO_ROOT / "eval.py"),
+                "hierarchical",
                 *common_eval_args(config),
                 "--object_pred_dir",
                 str(nms_dir / "final"),
@@ -2080,10 +2081,8 @@ def stage2_eval_phase(
             )
             token_bin_command = [
                 sys.executable,
-                str(
-                    REPO_ROOT
-                    / "eval_hierarchical_stage2_token_bins.py"
-                ),
+                str(REPO_ROOT / "eval.py"),
+                "token_bins",
                 "--raw_prediction_dir",
                 str(raw_dir),
                 "--scene_prediction_dir",
@@ -2145,7 +2144,8 @@ def stage2_eval_phase(
 def aggregate_phase(config_path: Path, dry_run: bool) -> None:
     command = [
         sys.executable,
-        str(REPO_ROOT / "aggregate_hierarchical_repeated_metrics.py"),
+        str(REPO_ROOT / "eval.py"),
+        "aggregate",
         "--config",
         str(config_path.resolve()),
     ]

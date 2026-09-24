@@ -25,8 +25,8 @@ from bbox.metrics import iou_3d
 from scipy.optimize import linear_sum_assignment
 from terminaltables import AsciiTable
 
-import eval as base_eval
-from generate_region_bboxes import (
+from utils import eval_base as base_eval
+from utils.generate_region_bboxes import (
     expand_region,
     make_regions,
     parse_bboxes,
@@ -40,7 +40,7 @@ OBJECT_THRESHOLDS = (0.25, 0.50)
 LAYOUT_THRESHOLDS = (0.25, 0.50)
 REGION_THRESHOLDS = (0.50, 0.75)
 DEFAULT_LABEL_MAPPING = (
-    Path(__file__).resolve().parent / "data" / "spatiallm" / "benchmark_categories.tsv"
+    Path(__file__).resolve().parents[1] / "benchmark_categories.tsv"
 )
 
 

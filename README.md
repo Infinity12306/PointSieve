@@ -78,7 +78,7 @@ Run commands from the repository root.
 ### 1. Build region supervision
 
 ```bash
-python build_hierarchical_region_dataset.py \
+python -m utils.build_region_dataset \
   --dataset_root data/spatiallm \
   --train_json data/spatiallm/spatiallm_train.json \
   --split train --sample_size 20000 --seed 0 --k 3 \
@@ -88,7 +88,7 @@ python build_hierarchical_region_dataset.py \
 This writes `spatiallm_stage1_region_train_20000.json`, `spatiallm_stage2_bbox_train_20000.json`, and the corresponding region files. For the complete validation split used by the training and scorer configs, run:
 
 ```bash
-python build_hierarchical_region_dataset.py \
+python -m utils.build_region_dataset \
   --dataset_root data/spatiallm \
   --train_json data/spatiallm/spatiallm_val.json \
   --split val --sample_size 0 --seed 0 --k 3 \
@@ -98,7 +98,7 @@ python build_hierarchical_region_dataset.py \
 Build the official test split for the final three-seed report in the same way:
 
 ```bash
-python build_hierarchical_region_dataset.py \
+python -m utils.build_region_dataset \
   --dataset_root data/spatiallm \
   --train_json data/spatiallm/spatiallm_test.json \
   --split test --sample_size 0 --seed 0 --k 3 \
@@ -110,7 +110,7 @@ python build_hierarchical_region_dataset.py \
 `configs/0923_train_hierarchical.yaml` records the paper settings: full-scene Stage 1 at `world_size=32`, regional Stage 2 at `world_size=16` with `max_point_tokens=4096`, cosine decay, warmup ratio `0.03`, W&B logging, and no auxiliary numeric/classification loss.
 
 ```bash
-python train_hierarchical_spatiallm.py configs/0923_train_hierarchical.yaml
+python train.py hierarchical configs/0923_train_hierarchical.yaml
 ```
 
 The config trains Stage 1 and Stage 2 from the same official base checkpoint. Use `--stage2-only --stage2-model-name-path ...` to rerun a single stage. The released one-stage comparison is the `ysmao/SpatialLM1.1-Qwen-0.5B-ScanNet-SFT` checkpoint described above.
@@ -123,7 +123,7 @@ The scorer is trained on frozen Stage 2 point features with voxel-box intersecti
 bash scripts/0923_precompute_scorer_cache.sh
 bash scripts/0923_train_scorer.sh
 bash scripts/0923_filter_point_tokens.sh
-python train_stage2_filtered_point_tokens.py configs/0923_train_filtered_stage2.yaml
+python train.py filtered configs/0923_train_filtered_stage2.yaml
 ```
 
 The paper PointSieve row uses scorer threshold `0.5`, `min_keep=1`, `max_keep=4096`, and the scorer-adapted model at optimizer step `7000`. The SceneScript row in the paper is a separate baseline trained from scratch and is not redistributed here.
@@ -131,18 +131,18 @@ The paper PointSieve row uses scorer threshold `0.5`, `min_keep=1`, `max_keep=40
 ### 4. Run the three-seed evaluation
 
 ```bash
-python run_hierarchical_repeated_comparison.py \
+python eval.py formal \
   --config configs/0923_eval_spatiallm_test.yaml \
   --phase stage1 stage1_eval \
   --gpus 0,1,2,3
 
-python run_hierarchical_repeated_comparison.py \
+python eval.py formal \
   --config configs/0923_eval_spatiallm_test.yaml \
   --phase stage2 stage2_eval \
   --methods hier_res16_max4096_14392 scorer_filtered_fullcache_7000 \
   --gpus 0,1,2,3
 
-python run_hierarchical_repeated_comparison.py \
+python eval.py formal \
   --config configs/0923_eval_spatiallm_test.yaml \
   --phase aggregate --gpus 0
 ```
@@ -154,8 +154,11 @@ The runner reuses the saved Stage 1 predictions for every Stage 2 method, assign
 ```text
 configs/       paper training and evaluation YAML files
 scripts/       small cache and scorer wrappers
+utils/         data preparation and implementation modules
 spatiallm/     required SpatialLM model, data, and trainer subset
-*.py           region construction, training, inference, NMS, and evaluation
+train.py       unified training entry point
+inference.py   unified inference entry point
+eval.py        unified evaluation/post-processing entry point
 ```
 
 The code is derived from [SpatialLM](https://github.com/manycore-research/SpatialLM). See `LICENSE-LLAMA.txt` and `NOTICE` for upstream license and attribution information. The repository does not redistribute any checkpoint or dataset.

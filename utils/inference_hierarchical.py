@@ -20,15 +20,15 @@ from bbox.metrics import iou_3d
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 
-from build_hierarchical_region_dataset import STAGE1_PROMPT, STAGE2_PROMPT
-from inference import preprocess_point_cloud
-from render_topdown_arkitscenes import save_points_and_colors
+from utils.build_region_dataset import STAGE1_PROMPT, STAGE2_PROMPT
+from utils.inference_base import preprocess_point_cloud
+from utils.render_topdown import save_points_and_colors
 from spatiallm import Layout
 from spatiallm.layout.entity import Bbox, Region
 from spatiallm.pcd import cleanup_pcd, get_points_and_colors, load_o3d_pcd
 
 
-REPO_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATASET_ROOT = REPO_ROOT / "data" / "spatiallm"
 POINT_PROMPT = "<|point_start|><|point_pad|><|point_end|>"
 LAYOUT_START = "<|layout_s|>"

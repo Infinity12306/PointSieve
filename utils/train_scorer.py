@@ -28,7 +28,7 @@ from spatiallm.model.point_token_scorer import PointTokenScorer, ScorerConfig
 
 
 DEFAULT_PROJECTOR_MODEL_PATH = (
-    Path(__file__).resolve().parent
+    Path(__file__).resolve().parents[1]
     / "artifacts"
     / "stage2_bboxmask"
     / "checkpoint-14392"
