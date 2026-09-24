@@ -4,10 +4,10 @@ Source code for the paper **PointSieve: Enhancing Spatial Perception of Large La
 
 ## Installation
 
-Use Python 3.11, PyTorch 2.4.1, and a CUDA 12.4 environment. Install PyTorch for the CUDA version on the target machine first, then install the Python dependencies:
+First, install pytorch suitable to your actual development environment. Then install the Python dependencies as followed:
 
 ```bash
-git clone <your-github-url>/PointSieve.git
+git clone https://github.com/Infinity12306/PointSieve.git
 cd PointSieve
 python -m venv .venv
 source .venv/bin/activate
@@ -15,6 +15,8 @@ pip install --upgrade pip
 pip install -r requirements.txt
 pip install -e .
 ```
+
+For reference, we used Python 3.11, PyTorch 2.4.1, and a CUDA 12.4 environment throughout the experiments.
 
 SpatialLM 1.1 uses Sonata sparse operators. Install matching wheels for `spconv`, `torch-scatter`, `torchsparse`, and `flash-attn` in the same environment. Their versions depend on the local PyTorch/CUDA build; the upstream [SpatialLM installation guide](https://github.com/manycore-research/SpatialLM#installation) is the reference for these compiled dependencies.
 
