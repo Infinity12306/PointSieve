@@ -31,7 +31,6 @@ DEFAULT_PROJECTOR_MODEL_PATH = (
     Path(__file__).resolve().parents[1]
     / "artifacts"
     / "stage2_bboxmask"
-    / "checkpoint-14392"
 )
 
 

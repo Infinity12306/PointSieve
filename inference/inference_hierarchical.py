@@ -87,6 +87,8 @@ def latest_checkpoint(path: Path) -> Path:
 def resolve_model_path(value: str | Path) -> str:
     text = str(value)
     path = Path(text)
+    if (path / "config.json").is_file():
+        return text
     if path.exists():
         return str(latest_checkpoint(path))
     return text
@@ -1077,11 +1079,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--stage1_model_path",
-        default="saves/hierarchical/stage1_regions",
+        default="artifacts/stage1",
     )
     parser.add_argument(
         "--stage2_model_path",
-        default="saves/hierarchical/stage2_bboxes",
+        default="artifacts/stage2_plain",
     )
     parser.add_argument(
         "--gt_region_dir",

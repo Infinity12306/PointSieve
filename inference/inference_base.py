@@ -142,7 +142,7 @@ if __name__ == "__main__":
         "-m",
         "--model_path",
         type=str,
-        default="manycore-research/SpatialLM-Llama-1B",
+        default="artifacts/base",
         help="Path to the model checkpoint",
     )
     parser.add_argument(

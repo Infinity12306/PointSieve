@@ -7,7 +7,6 @@ import argparse
 import csv
 import json
 import math
-import re
 from pathlib import Path
 from typing import Any
 
@@ -45,18 +44,6 @@ def absolute_path(value: str | Path) -> Path:
 
 def repeat_name(repeat_index: int, seed: int) -> str:
     return f"repeat_{repeat_index:02d}_seed_{seed}"
-
-
-def artifact_date_prefix(
-    item: dict[str, Any],
-    experiment: dict[str, Any],
-) -> str:
-    date_prefix = str(item.get("date_prefix", experiment["date_prefix"]))
-    if re.fullmatch(r"\d{4}", date_prefix) is None:
-        raise ValueError(
-            f"Artifact date_prefix must use MMDD, got {date_prefix!r}."
-        )
-    return date_prefix
 
 
 def read_eval_json(path: Path, expected_scene_count: int) -> dict[str, Any]:
@@ -1185,8 +1172,7 @@ def main() -> None:
         for method in methods.values()
     ) and not baselines
     output_root = absolute_path(experiment["output_root"])
-    date_prefix = str(experiment["date_prefix"])
-    stage1_date_prefix = artifact_date_prefix(config["stage1"], experiment)
+
     region_iou_thresholds = [
         f"{float(value):.2f}"
         for value in config["evaluation"].get(
@@ -1210,7 +1196,7 @@ def main() -> None:
                 output_root
                 / "evaluation"
                 / "stage1"
-                / f"{stage1_date_prefix}_{name}.json"
+                / f"{name}.json"
             )
             payload = read_eval_json(source_path, expected_scene_count)
             metrics: dict[str, float] = {}
@@ -1231,10 +1217,7 @@ def main() -> None:
         skip_token_bins = bool(
             methods[method_name].get("skip_token_bins", False)
         )
-        method_date_prefix = artifact_date_prefix(
-            methods[method_name],
-            experiment,
-        )
+
         runs: list[dict[str, Any]] = []
         token_bin_runs: list[dict[str, Any]] = []
         for repeat_index, seed in enumerate(seeds, start=1):
@@ -1244,7 +1227,7 @@ def main() -> None:
                 / "evaluation"
                 / "stage2"
                 / method_name
-                / f"{method_date_prefix}_{name}.json"
+                / f"{name}.json"
             )
             payload = read_eval_json(source_path, expected_scene_count)
             metrics = collect_detection_metrics(payload, "objects")
@@ -1280,7 +1263,7 @@ def main() -> None:
                     / "stage2"
                     / method_name
                     / "token_bins"
-                    / f"{method_date_prefix}_{name}"
+                    / f"{name}"
                     / "token_bin_evaluation.json"
                 )
                 token_bin_payload = read_eval_json(
@@ -1324,10 +1307,7 @@ def main() -> None:
 
     baseline_results: dict[str, Any] = {}
     for baseline_name, baseline in baselines.items():
-        baseline_date_prefix = artifact_date_prefix(
-            baseline,
-            experiment,
-        )
+
         baseline_has_layout = not bool(
             baseline.get(
                 "skip_layout",
@@ -1345,7 +1325,7 @@ def main() -> None:
                 / "evaluation"
                 / "one_stage"
                 / baseline_name
-                / f"{baseline_date_prefix}_{name}.json"
+                / f"{name}.json"
             )
             payload = read_eval_json(source_path, expected_scene_count)
             metrics = {}
@@ -1380,7 +1360,7 @@ def main() -> None:
                     / "one_stage"
                     / baseline_name
                     / "token_bins"
-                    / f"{baseline_date_prefix}_{name}"
+                    / f"{name}"
                     / "token_bin_evaluation.json"
                 )
                 payload = read_eval_json(
@@ -1464,7 +1444,7 @@ def main() -> None:
     }
 
     report_dir = output_root / "reports"
-    report_stem = f"{date_prefix}_{experiment['name']}"
+    report_stem = str(experiment["name"])
     json_path = report_dir / f"{report_stem}.json"
     csv_path = report_dir / f"{report_stem}.csv"
     markdown_path = report_dir / f"{report_stem}.md"

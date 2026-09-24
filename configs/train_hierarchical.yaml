@@ -2,7 +2,7 @@ wandb_project: pointsieve
 wandb_run_name: pointsieve_hierarchical
 
 base:
-  model_name_or_path: manycore-research/SpatialLM1.1-Qwen-0.5B
+  model_name_or_path: artifacts/base
   trust_remote_code: true
   do_train: true
   freeze_language_tower: false
@@ -47,7 +47,7 @@ stage1:
   save_steps: 500
   eval_strategy: steps
   eval_steps: 250
-  run_name: pointsieve_stage1_steps5000
+  run_name: pointsieve_stage1
 
 stage2:
   dataset: spatiallm_stage2_bbox_train_20000
@@ -56,8 +56,8 @@ stage2:
   num_train_epochs: 4
   world_size: 16.0
   max_point_tokens: 4096
-  model_name_or_path: manycore-research/SpatialLM1.1-Qwen-0.5B
+  model_name_or_path: artifacts/base
   save_steps: 1000
   eval_strategy: steps
   eval_steps: 500
-  run_name: pointsieve_stage2_plain_steps14392
+  run_name: pointsieve_stage2_plain

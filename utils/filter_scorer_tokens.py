@@ -33,8 +33,8 @@ from spatiallm.model.point_token_scorer import (
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT_CACHE_ROOT = REPO_ROOT / "artifacts" / "scorer_cache"
 DEFAULT_OUTPUT_ROOT = REPO_ROOT / "artifacts" / "filtered_cache"
-DEFAULT_SCORER_PATH = REPO_ROOT / "artifacts" / "scorer" / "checkpoint-29488"
-DEFAULT_PROJECTOR_MODEL_PATH = REPO_ROOT / "artifacts" / "stage2_bboxmask" / "checkpoint-14392"
+DEFAULT_SCORER_PATH = REPO_ROOT / "artifacts" / "scorer"
+DEFAULT_PROJECTOR_MODEL_PATH = REPO_ROOT / "artifacts" / "stage2_bboxmask"
 DEFAULT_DATASET_ROOT = REPO_ROOT / "data" / "spatiallm"
 
 

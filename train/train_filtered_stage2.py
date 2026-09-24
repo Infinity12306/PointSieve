@@ -41,7 +41,7 @@ from spatiallm.tuner.trainer import CustomSeq2SeqTrainer
 DEFAULT_CONFIG = (
     Path(__file__).resolve().parents[1]
     / "configs"
-    / "0923_train_filtered_stage2.yaml"
+    / "train_filtered_stage2.yaml"
 )
 
 

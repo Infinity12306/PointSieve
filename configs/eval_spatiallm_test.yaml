@@ -1,7 +1,5 @@
 experiment:
   name: pointsieve_spatiallm_test
-  date_prefix: "0923"
-  aggregate_date_prefix: "0923"
   data_json: data/spatiallm/spatiallm_stage1_region_test.json
   dataset_root: data/spatiallm
   expected_scene_count: 500
@@ -9,7 +7,7 @@ experiment:
   log_root: logs/formal_test
 
 stage1:
-  checkpoint: artifacts/stage1/checkpoint-5000
+  checkpoint: artifacts/stage1
   seeds: [42, 43, 44]
   num_bins: 1280
   world_size: 32.0
@@ -32,28 +30,27 @@ postprocess:
 
 one_stage_baselines:
   spatiallm_one_stage:
-    date_prefix: "0923"
-    source_model: ysmao/SpatialLM1.1-Qwen-0.5B-ScanNet-SFT
+    source_model: manycore-research/SpatialLM1.1-Qwen-0.5B
     checkpoint: artifacts/base
     code_template: code_template.txt
     expected_num_bins: 1280
     expected_world_size: 32.0
-    scene_token_bin_reference_method: hier_res16_max4096_14392
+    scene_token_bin_reference_method: staged
 
 methods:
-  hier_res16_max4096_14392:
+  staged:
     type: plain
     output_branch: llm
-    checkpoint: artifacts/stage2_plain/checkpoint-14392
+    checkpoint: artifacts/stage2_plain
     expected_world_size: 16.0
     expected_max_point_tokens: 4096
 
-  scorer_filtered_fullcache_7000:
+  pointsieve:
     type: all_region_scorer
     output_branch: llm
-    checkpoint: artifacts/stage2_scorer_filtered/checkpoint-7000
+    checkpoint: artifacts/stage2_scorer_filtered
     expected_world_size: 16.0
-    scorer_path: artifacts/scorer/checkpoint-29488
+    scorer_path: artifacts/scorer
     scorer_raw_token_threshold_exclusive: 0
     scorer_threshold: 0.5
     scorer_max_keep: 4096

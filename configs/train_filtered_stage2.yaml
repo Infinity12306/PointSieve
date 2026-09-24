@@ -1,6 +1,6 @@
-model_name_or_path: artifacts/stage2_bboxmask/checkpoint-14392
+model_name_or_path: artifacts/stage2_bboxmask
 validate_scorer_filtered_lineage: true
-scorer_path_for_lineage: artifacts/scorer/checkpoint-29488/scorer.pt
+scorer_path_for_lineage: artifacts/scorer
 trust_remote_code: true
 model_torch_dtype: auto
 
@@ -47,4 +47,4 @@ eval_strategy: steps
 eval_steps: 500
 report_to: wandb
 wandb_project: pointsieve
-wandb_run_name: pointsieve_stage2_scorer_filtered_steps7196
+wandb_run_name: pointsieve_stage2_scorer_filtered

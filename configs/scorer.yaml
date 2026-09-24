@@ -1,10 +1,10 @@
 dataset_root: data/spatiallm
-stage2_model: artifacts/stage2_bboxmask/checkpoint-14392
+stage2_model: artifacts/stage2_bboxmask
 cache_root: artifacts/scorer_cache
 message_cache_root: artifacts/message_cache
 filtered_cache_root: artifacts/filtered_cache
 scorer_output: artifacts/scorer
-scorer_checkpoint: artifacts/scorer/checkpoint-29488
+scorer_checkpoint: artifacts/scorer
 
 num_bins: 1280
 world_size: 16.0

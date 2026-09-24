@@ -3,9 +3,9 @@
 
 Examples::
 
-    python train.py hierarchical configs/0923_train_hierarchical.yaml
+    python train.py hierarchical configs/train_hierarchical.yaml
     python train.py scorer --train_cache_dir artifacts/scorer_cache/train ...
-    python train.py filtered configs/0923_train_filtered_stage2.yaml
+    python train.py filtered configs/train_filtered_stage2.yaml
 
 Calling ``python train.py <config>`` keeps the low-level SFT trainer
 compatible with the command used by the hierarchical launcher.

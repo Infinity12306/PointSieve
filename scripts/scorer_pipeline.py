@@ -124,7 +124,7 @@ def train(config: dict) -> None:
             "--wandb_project",
             "pointsieve",
             "--wandb_run_name",
-            "pointsieve_scorer_steps29488",
+            "pointsieve_scorer",
         ]
     )
     run(command)
@@ -195,7 +195,7 @@ def filter_tokens(config: dict) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("phase", choices=("precompute", "train", "filter"))
-    parser.add_argument("--config", type=Path, default=ROOT / "configs" / "0923_scorer.yaml")
+    parser.add_argument("--config", type=Path, default=ROOT / "configs" / "scorer.yaml")
     args = parser.parse_args()
     config = load(args.config)
     {"precompute": precompute, "train": train, "filter": filter_tokens}[args.phase](config)

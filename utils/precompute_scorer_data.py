@@ -23,7 +23,7 @@ from spatiallm.tuner.data.mm_plugin import SpatialLMPlugin
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATASET_ROOT = REPO_ROOT / "data" / "spatiallm"
-DEFAULT_MODEL_PATH = REPO_ROOT / "artifacts" / "stage2_bboxmask" / "checkpoint-14392"
+DEFAULT_MODEL_PATH = REPO_ROOT / "artifacts" / "stage2_bboxmask"
 
 
 @dataclass

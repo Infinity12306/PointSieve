@@ -9,7 +9,6 @@ import hashlib
 import json
 import math
 import os
-import re
 import shlex
 import subprocess
 import sys
@@ -27,9 +26,9 @@ PHASE_ORDER = (
     "stage1",
     "stage1_eval",
     "baseline",
-    "baseline_eval",
     "stage2",
     "stage2_eval",
+    "baseline_eval",
     "aggregate",
 )
 SCORER_METHOD_TYPES = ("conditional_scorer", "all_region_scorer")
@@ -116,24 +115,6 @@ def checkpoint_config(path: Path) -> dict[str, Any]:
     return json.loads(config_path.read_text(encoding="utf-8"))
 
 
-def artifact_date_prefix(
-    item: dict[str, Any],
-    experiment: dict[str, Any],
-) -> str:
-    date_prefix = str(item.get("date_prefix", experiment["date_prefix"]))
-    if re.fullmatch(r"\d{4}", date_prefix) is None:
-        raise ValueError(
-            f"Artifact date_prefix must use MMDD, got {date_prefix!r}."
-        )
-    return date_prefix
-
-
-def dated_artifact_name(date_prefix: str, item_name: str) -> str:
-    """Add the MMDD prefix once while allowing dated method display names."""
-    prefix = f"{date_prefix}_"
-    return item_name if item_name.startswith(prefix) else f"{prefix}{item_name}"
-
-
 def scorer_checkpoint_file(path: Path) -> Path:
     if path.is_file():
         return path
@@ -189,7 +170,7 @@ def validate_scorer_point_module_lineage(
                 "scorer_point_module_source_path"
             )
     if not actual_source_value and checkpoint.get("joint_training"):
-        # Joint scorer checkpoints written before 0727 did not copy their
+        # Older joint scorer checkpoints did not copy their
         # point-module provenance into scorer.pt. The colocated Hugging Face
         # model config still records the exact Stage-2 initialization path.
         model_config_path = scorer_file.parent / "config.json"
@@ -361,9 +342,6 @@ def validate_config(
     generation = config["generation"]
     evaluation = config["evaluation"]
 
-    date_prefix = str(experiment["date_prefix"])
-    if re.fullmatch(r"\d{4}", date_prefix) is None:
-        raise ValueError("experiment.date_prefix must use MMDD, for example 0725.")
     seeds = [int(seed) for seed in stage1["seeds"]]
     development_only = bool(experiment.get("development_only", False))
     if not seeds or len(set(seeds)) != len(seeds) or any(seed < 0 for seed in seeds):
@@ -460,7 +438,6 @@ def validate_config(
         raise ValueError(
             "stage1.prompt_source must be either 'default' or 'data_json'."
         )
-    artifact_date_prefix(stage1, experiment)
 
     stage1_checkpoint = absolute_path(stage1["checkpoint"])
     stage1_config = checkpoint_config(stage1_checkpoint)
@@ -516,7 +493,7 @@ def validate_config(
             for pair in aliases.items() for value in pair
         ):
             raise ValueError(f"{method_name}.class_aliases must map nonempty strings.")
-        artifact_date_prefix(method, experiment)
+
         method_type = str(method["type"])
         if method_type not in METHOD_TYPES:
             raise ValueError(
@@ -764,7 +741,7 @@ def validate_config(
         baseline_names = selected_baselines
     for baseline_name in baseline_names:
         baseline = baselines[baseline_name]
-        artifact_date_prefix(baseline, experiment)
+
         class_aliases = baseline.get("class_aliases", {})
         if not isinstance(class_aliases, dict):
             raise ValueError(
@@ -1160,7 +1137,7 @@ def stage1_phase(
     stage1 = config["stage1"]
     output_root = absolute_path(experiment["output_root"])
     log_root = absolute_path(experiment["log_root"])
-    date_prefix = artifact_date_prefix(stage1, experiment)
+
     common_generation = generation_args(config)
 
     for repeat_index, seed in repeats:
@@ -1182,7 +1159,7 @@ def stage1_phase(
         if bool(experiment.get("lock_num_shards", False)):
             manifest["num_shards"] = len(gpus)
         ensure_manifest(
-            prediction_dir / f"{date_prefix}_run_manifest.json",
+            prediction_dir / "run_manifest.json",
             manifest,
             dry_run,
         )
@@ -1217,7 +1194,7 @@ def stage1_phase(
             logs.append(
                 log_root
                 / "inference"
-                / f"{date_prefix}_stage1_{name}_shard{shard_index}.log"
+                / f"stage1_{name}_shard{shard_index}.log"
             )
         run_shards(commands, logs, gpus, seed, dry_run)
         if not dry_run:
@@ -1233,7 +1210,7 @@ def stage1_eval_phase(
     experiment = config["experiment"]
     output_root = absolute_path(experiment["output_root"])
     log_root = result_table_log_root(config)
-    date_prefix = artifact_date_prefix(config["stage1"], experiment)
+
     stage1_artifact_name = str(
         config["stage1"].get("artifact_name", "stage1")
     )
@@ -1246,7 +1223,7 @@ def stage1_eval_phase(
             output_root
             / "evaluation"
             / "stage1"
-            / f"{date_prefix}_{name}.json"
+            / f"{name}.json"
         )
         command = [
             sys.executable,
@@ -1265,7 +1242,7 @@ def stage1_eval_phase(
             command.append("--skip_layout")
         log_path = (
             log_root
-            / f"{date_prefix}_{stage1_artifact_name}_{name}.log"
+            / f"{stage1_artifact_name}_{name}.log"
         )
         run_logged(command, log_path, dry_run)
 
@@ -1285,10 +1262,8 @@ def baseline_phase(
 
     for baseline_name in baseline_names:
         baseline = config["one_stage_baselines"][baseline_name]
-        baseline_date_prefix = artifact_date_prefix(baseline, experiment)
-        baseline_artifact_name = dated_artifact_name(
-            baseline_date_prefix, baseline_name
-        )
+
+        baseline_artifact_name = baseline_name
         baseline_data_json = absolute_path(
             baseline.get("data_json", experiment["data_json"])
         )
@@ -1327,7 +1302,7 @@ def baseline_phase(
                 manifest["num_shards"] = len(gpus)
             ensure_manifest(
                 prediction_dir
-                / f"{baseline_date_prefix}_run_manifest.json",
+                / "run_manifest.json",
                 manifest,
                 dry_run,
             )
@@ -1400,10 +1375,8 @@ def baseline_eval_phase(
 
     for baseline_name in baseline_names:
         baseline = config["one_stage_baselines"][baseline_name]
-        baseline_date_prefix = artifact_date_prefix(baseline, experiment)
-        baseline_artifact_name = dated_artifact_name(
-            baseline_date_prefix, baseline_name
-        )
+
+        baseline_artifact_name = baseline_name
         for repeat_index, seed in repeats:
             name = repeat_name(repeat_index, seed)
             raw_dir = (
@@ -1459,7 +1432,7 @@ def baseline_eval_phase(
                 / "evaluation"
                 / "one_stage"
                 / baseline_name
-                / f"{baseline_date_prefix}_{name}.json"
+                / f"{name}.json"
             )
             eval_command = [
                 sys.executable,
@@ -1519,7 +1492,7 @@ def baseline_eval_phase(
                 / "one_stage"
                 / baseline_name
                 / "token_bins"
-                / f"{baseline_date_prefix}_{name}"
+                / f"{name}"
             )
             token_bin_command = [
                 sys.executable,
@@ -1606,11 +1579,8 @@ def stage2_phase(
         if 'no_cleanup' in method:
             method_generation['no_cleanup'] = method['no_cleanup']
         common_generation = generation_args({'generation': method_generation})
-        method_date_prefix = artifact_date_prefix(method, experiment)
-        method_artifact_name = dated_artifact_name(
-            method_date_prefix,
-            method_name,
-        )
+
+        method_artifact_name = method_name
         method_type = str(method["type"])
         region_source = str(method.get("region_source", "predicted"))
         for repeat_index, seed in repeats:
@@ -1736,10 +1706,7 @@ def stage2_phase(
                 bypass_reference = config["methods"][
                     bypass_reference_method
                 ]
-                bypass_artifact_name = dated_artifact_name(
-                    artifact_date_prefix(bypass_reference, experiment),
-                    bypass_reference_method,
-                )
+                bypass_artifact_name = bypass_reference_method
                 bypass_raw_prediction_dir = (
                     output_root
                     / "predictions"
@@ -1787,7 +1754,7 @@ def stage2_phase(
             ):
                 manifest["num_shards"] = len(gpus)
             ensure_manifest(
-                prediction_dir / f"{method_date_prefix}_run_manifest.json",
+                prediction_dir / "run_manifest.json",
                 manifest,
                 dry_run,
             )
@@ -1984,11 +1951,8 @@ def stage2_eval_phase(
 
     for method_name in method_names:
         method = config["methods"][method_name]
-        method_date_prefix = artifact_date_prefix(method, experiment)
-        method_artifact_name = dated_artifact_name(
-            method_date_prefix,
-            method_name,
-        )
+
+        method_artifact_name = method_name
         skip_token_bins = bool(method.get("skip_token_bins", False))
         for repeat_index, seed in repeats:
             name = repeat_name(repeat_index, seed)
@@ -2048,7 +2012,7 @@ def stage2_eval_phase(
                 / "evaluation"
                 / "stage2"
                 / method_name
-                / f"{method_date_prefix}_{name}.json"
+                / f"{name}.json"
             )
             eval_command = [
                 sys.executable,
@@ -2077,7 +2041,7 @@ def stage2_eval_phase(
                 / "stage2"
                 / method_name
                 / "token_bins"
-                / f"{method_date_prefix}_{name}"
+                / f"{name}"
             )
             token_bin_command = [
                 sys.executable,
@@ -2151,14 +2115,12 @@ def aggregate_phase(config_path: Path, dry_run: bool) -> None:
     ]
     config, _ = load_config(config_path)
     experiment = config["experiment"]
-    aggregate_date_prefix = str(
-        experiment.get("aggregate_date_prefix", experiment["date_prefix"])
-    )
+
     log_path = (
         absolute_path(experiment["log_root"])
         / "evaluation"
         / (
-            f"{aggregate_date_prefix}_{experiment['name']}_"
+            f"{experiment['name']}_"
             "aggregate.log"
         )
     )
@@ -2178,7 +2140,7 @@ def snapshot_config(
         absolute_path(experiment["output_root"])
         / "manifests"
         / (
-            f"{experiment['date_prefix']}_config_"
+            "config_"
             f"{digest}.yaml"
         )
     )

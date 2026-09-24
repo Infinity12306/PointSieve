@@ -275,12 +275,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset_root", type=Path, default=DEFAULT_DATASET_ROOT)
     parser.add_argument(
         "--stage1_model_path",
-        default="saves/hierarchical/stage1_regions",
+        default="artifacts/stage1",
         help="Stage-1 checkpoint used to predict regions.",
     )
     parser.add_argument(
         "--stage2_model_path",
-        default="saves/hierarchical/stage2_bboxes",
+        default="artifacts/stage2_scorer_filtered",
         help="Stage-2 checkpoint used to predict object bboxes.",
     )
     parser.add_argument(

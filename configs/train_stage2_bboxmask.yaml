@@ -2,7 +2,7 @@ stage2_only: true
 wandb_project: pointsieve
 
 base:
-  model_name_or_path: manycore-research/SpatialLM1.1-Qwen-0.5B
+  model_name_or_path: artifacts/base
   trust_remote_code: true
   do_train: true
   freeze_language_tower: false
@@ -48,4 +48,4 @@ stage2:
   save_steps: 1000
   eval_strategy: steps
   eval_steps: 500
-  run_name: pointsieve_stage2_bboxmask_steps14392
+  run_name: pointsieve_stage2_bboxmask
